@@ -18,9 +18,17 @@
     Math.degreeToRad = function degreeToRad(deg){
         return deg*Math.PI/180;
     };
+    
+    function queryObj(){
+        return window.location.search.substr(1).split('&').reduce((acc, s)=>{
+            s = s.split('=').map((s)=>{ return window.decodeURIComponent(s) });
+            acc[s[0]] = s[1];
+            return acc;
+        }, {});
+    }
 
     function three(phrase){
-        const PHRASE = phrase || 'Hello world!',
+        const PHRASE = phrase || queryObj().phrase || 'Hello world!',
               FONT_SIZE = 30,
               FONT_COLOR = 'black',
               SCALE_FACTOR = 1000,
