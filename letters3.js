@@ -1,7 +1,7 @@
 (function() {
     'use strict';
     
-    window.two = two;
+    window.three = three;
 
     function Point(x,y){
         this.x = x;
@@ -19,39 +19,40 @@
         return deg*Math.PI/180;
     };
 
-    function two(){
-        const PHRASE = 'Hello world!',
+    function three(phrase){
+        const PHRASE = phrase || 'Hello world!',
               FONT_SIZE = 30,
               FONT_COLOR = 'black',
-              SCALE_FACTOR = 10,
-              ITERATIONS = 360;
+              SCALE_FACTOR = 1000,
+              ITERATIONS = SCALE_FACTOR;
         let letters = createLetterDivs(PHRASE),
             sin = [],
             cos = [];
 
-        animate(letters, ITERATIONS);
+        animate(letters, 0);
 
-        function animate(letters, theta) {
+        function animate(letters, iterations) {
             for(let i=0,l=letters.length, c; i<l; i++){
                 c = letters[i];
                 
-                
-                c.position.x = c.startPosition.x + Math.cos(Math.degreeToRad(c.theta.x)) * c.theta.x;
-                c.position.y = c.startPosition.y + Math.sin(Math.degreeToRad(c.theta.y)) * c.theta.y;
-
-                c.theta.x--;
-                c.theta.y--
-                if(c.theta.x < 0) c.theta.x=0;
-                if(c.theta.y < 0) c.theta.y=0;
+                c.position.x = c.startPosition.x + Math.cos(Math.degreeToRad(c.theta)) * c.scaleFactor.x;
+                c.position.y = c.startPosition.y + Math.sin(Math.degreeToRad(c.theta)) * c.scaleFactor.y;
 
                 c.style.top = c.position.y + 'px';
                 c.style.left = c.position.x + 'px';
-               
+ 
+                c.theta++;
+                if(--c.scaleFactor.x < 0){
+                    c.scaleFactor.x = 0;
+                }
+                if(--c.scaleFactor.y < 0){
+                    c.scaleFactor.y = 0;
+                }
             }
-            theta--;
-            if(theta >= 0){
+
+            if(++iterations < ITERATIONS){
                 window.setTimeout(function() {
-                    animate(letters, theta);
+                    animate(letters, iterations);
                 }, 0);
             }else{
                 window.setTimeout(function(){
@@ -64,9 +65,10 @@
             let phraseWidth = 0,
                 phraseHeight = 0,
                 offset = 0,
-                initPoint, 
-                letterElements;
-             const LETTER_SPACING = 2;
+                initPoint,
+               letterElements;
+             const LETTER_SPACING = 1,
+                   SPACE_WIDTH = 10;
 
             letterElements = phrase.split('').map((c,i)=>{
                 let l = document.createElement('div');
@@ -74,35 +76,41 @@
                 l.style.fontSize = FONT_SIZE + 'px';
                 l.style.color = FONT_COLOR;
                 l.style.position = 'fixed';
-                l.style.top = -1000 + 'px';
-                l.style.left = -1000 + 'px';
+                l.style.visibility = 'hidden';
+                l.style.padding = '0';
+                l.style.margin = '0';
                 l.style.zIndex = 1000;
-                l.scaleFactor = new Point(Math.random() * 1000, Math.random()*1000);
-                l.theta = new Point(~~(Math.random() * 360), ~~(Math.random() * 360));
                 document.body.appendChild(l);
-                l.startPosition = new Point(0,0);
-                l.position = l.startPosition.clone();
-                phraseWidth += LETTER_SPACING*3;
-                if(c === ' ') phraseWidth + FONT_SIZE;
-                phraseHeight = Math.max(phraseHeight, l.offsetHeight)
 
+                if(l.innerHTML.trim() === ''){
+                    phraseWidth += SPACE_WIDTH;
+                }
+                phraseWidth += l.offsetWidth + LETTER_SPACING;
+                phraseHeight = Math.max(phraseHeight, l.offsetHeight)
                 return l;
             });
         
             offset = 0;
             initPoint = new Point(
                window.innerWidth/2 - phraseWidth/2,
-               window.innerHeight/2 - phraseHeight
+               window.innerHeight/2 - phraseHeight/2
             );
             letterElements.forEach((l,i)=>{
+                l.startPosition = new Point(0,0);
+                l.position = l.startPosition.clone();
                 l.startPosition.x = initPoint.x + offset;
-                if(l.innerText.trim() === '') offset += LETTER_SPACING*3;
+                if(l.innerHTML.trim() === '') offset += SPACE_WIDTH;
+                offset += l.offsetWidth + LETTER_SPACING;
+
                 l.startPosition.y = initPoint.y;
-                l.position.x = l.startPosition.x + Math.cos(Math.degreeToRad(l.theta.x)) * l.theta.x;
-                l.position.y = l.startPosition.y + Math.sin(Math.degreeToRad(l.theta.y)) * l.theta.y;
+                l.theta = Math.random() * 360;
+                l.scaleFactor = new Point(Math.random() * SCALE_FACTOR, Math.random()*SCALE_FACTOR);
+                l.position.x = l.startPosition.x + Math.cos(Math.degreeToRad(l.theta)) * l.scaleFactor.x;
+                l.position.y = l.startPosition.y + Math.sin(Math.degreeToRad(l.theta)) * l.scaleFactor.y;
                 l.style.top = l.position.y + 'px';
                 l.style.left = l.position.x + 'px';
-                offset += l.offsetWidth + LETTER_SPACING;
+
+                l.style.visibility = 'visible';
             });
 
             return letterElements;

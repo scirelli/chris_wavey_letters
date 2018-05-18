@@ -1,92 +1,105 @@
-function Point(x,y){
-    this.x = x;
-    this.y = y;
-}
-Point.prototype.clone = function clone(){
-    return new Point(this.x, this.y);
-};
-Point.prototype.copy = function copy(p){
-    this.x = p.x;
-    this.y = p.y;
-    return this;
-};
-
-function two(){
-    const PHRASE = 'Hello world!',
-          FONT_SIZE = 30,
-          FONT_COLOR = 'black',
-          SCALE_FACTOR = 10;
-    let letters = createLetterDivs(PHRASE);
+(function() {
+    'use strict';
     
-    animate(letters, 0);
+    window.one = one;
 
-    function animate(letters, theta) {
-        for(let i=0,l=letters.length, c; i<l; i++){
-            c = letters[i];
+    function Point(x,y){
+        this.x = x;
+        this.y = y;
+    }
+    Point.prototype.clone = function clone(){
+        return new Point(this.x, this.y);
+    };
+    Point.prototype.copy = function copy(p){
+        this.x = p.x;
+        this.y = p.y;
+        return this;
+    };
 
-            //c.position.x = c.startPosition.x + Math.cos(theta) * SCALE_FACTOR;
-            c.position.y = c.startPosition.y + Math.sin(theta) * SCALE_FACTOR;
-            theta++;
-            c.style.top = c.position.y + 'px';
-            c.style.left = c.position.x + 'px';
+    function one(){
+        const PHRASE = 'Hello world!',
+              FONT_SIZE = 30,
+              FONT_COLOR = 'black',
+              SCALE_FACTOR = 10;
+        let letters = createLetterDivs(PHRASE);
+        
+        animate(letters, 0, 0);
+
+        function animate(letters, theta, count) {
+            for(let i=0,l=letters.length, c; i<l; i++){
+                c = letters[i];
+
+                //c.position.x = c.startPosition.x + Math.cos(theta) * SCALE_FACTOR;
+                c.position.y = c.startPosition.y + Math.sin(theta) * SCALE_FACTOR;
+                theta++;
+                c.style.top = c.position.y + 'px';
+                c.style.left = c.position.x + 'px';
+            }
+            count++; 
+
+            if(count < 20){
+                window.setTimeout(function() {
+                    animate(letters, theta, count);
+                }, 50);
+            }else{
+                count=0;
+                removeLetters(letters);
+            }
         }
         
-        window.setTimeout(function() {
-            animate(letters, theta);
-        }, 50);
-    }
-    
-    function degreeToRad(deg){
-        return deg*Math.PI/180;
-    }
+        function degreeToRad(deg){
+            return deg*Math.PI/180;
+        }
 
-    function createLetterDivs(phrase){
-        let phraseWidth = 0,
-            phraseHeight = 0,
-            offset = 0,
-            initPoint;
-         const LETTER_SPACING = 2;
+        function createLetterDivs(phrase){
+            let phraseWidth = 0,
+                phraseHeight = 0,
+                offset = 0,
+                initPoint,
+                letterElements;
+             const LETTER_SPACING = 2;
 
-        letterElements = phrase.split('').map((c,i)=>{
-            let l = document.createElement('div');
-            l.innerText = c;
-            l.style.fontSize = FONT_SIZE + 'px';
-            l.style.color = FONT_COLOR;
-            l.style.position = 'fixed';
-            l.style.top = -1000 + 'px';
-            l.style.left = -1000 + 'px';
-            l.style.zIndex = 1000;
-            document.body.appendChild(l);
-            l.startPosition = new Point(0,0);
-            l.position = l.startPosition.clone();
-            phraseWidth += LETTER_SPACING*3;
-            if(c === ' ') phraseWidth + FONT_SIZE;
-            phraseHeight = Math.max(phraseHeight, l.offsetHeight)
+            letterElements = phrase.split('').map((c,i)=>{
+                let l = document.createElement('div');
+                l.innerText = c;
+                l.style.fontSize = FONT_SIZE + 'px';
+                l.style.color = FONT_COLOR;
+                l.style.position = 'fixed';
+                l.style.top = -1000 + 'px';
+                l.style.left = -1000 + 'px';
+                l.style.zIndex = 1000;
+                document.body.appendChild(l);
+                l.startPosition = new Point(0,0);
+                l.position = l.startPosition.clone();
+                phraseWidth += LETTER_SPACING*3;
+                if(c === ' ') phraseWidth + FONT_SIZE;
+                phraseHeight = Math.max(phraseHeight, l.offsetHeight)
 
-            return l;
-        });
-    
-        offset = 0;
-        initPoint = new Point(
-           window.innerWidth/2 - phraseWidth/2,
-           window.innerHeight/2 - phraseHeight
-        );
-        letterElements.forEach((l,i)=>{
-            l.startPosition.x = initPoint.x + offset;
-            if(l.innerText.trim() === '') offset += LETTER_SPACING*3;
-            l.startPosition.y = initPoint.y;
-            l.position = l.startPosition.clone();
-            l.style.top = l.position.y + 'px';
-            l.style.left = l.position.x + 'px';
-            offset += l.offsetWidth + LETTER_SPACING;
-        });
+                return l;
+            });
+        
+            offset = 0;
+            initPoint = new Point(
+               window.innerWidth/2 - phraseWidth/2,
+               window.innerHeight/2 - phraseHeight
+            );
+            letterElements.forEach((l,i)=>{
+                l.startPosition.x = initPoint.x + offset;
+                if(l.innerText.trim() === '') offset += LETTER_SPACING*3;
+                l.startPosition.y = initPoint.y;
+                l.position = l.startPosition.clone();
+                l.style.top = l.position.y + 'px';
+                l.style.left = l.position.x + 'px';
+                offset += l.offsetWidth + LETTER_SPACING;
+            });
 
-        return letterElements;
-    }
+            return letterElements;
+        }
 
-    function removeLetters(letters){
-        letters.forEach(l=>{
-            l.remove();
-        });
-    }
-};
+        function removeLetters(letters){
+            letters.forEach(l=>{
+                l.remove();
+            });
+        }
+    };
+})();
