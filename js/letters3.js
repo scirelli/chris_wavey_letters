@@ -3,22 +3,6 @@
     
     window.three = three;
 
-    function Point(x,y){
-        this.x = x;
-        this.y = y;
-    }
-    Point.prototype.clone = function clone(){
-        return new Point(this.x, this.y);
-    };
-    Point.prototype.copy = function copy(p){
-        this.x = p.x;
-        this.y = p.y;
-        return this;
-    };
-    Math.degreeToRad = function degreeToRad(deg){
-        return deg*Math.PI/180;
-    };
-    
     function queryObj(){
         return window.location.search.substr(1).split('&').reduce((acc, s)=>{
             s = s.split('=').map((s)=>{ return window.decodeURIComponent(s) });

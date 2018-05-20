@@ -1,61 +1,54 @@
 (function() {
     'use strict';
     
-    window.one = one;
+    window.two = two;
 
-    function Point(x,y){
-        this.x = x;
-        this.y = y;
-    }
-    Point.prototype.clone = function clone(){
-        return new Point(this.x, this.y);
-    };
-    Point.prototype.copy = function copy(p){
-        this.x = p.x;
-        this.y = p.y;
-        return this;
-    };
-
-    function one(){
+    function two(){
         const PHRASE = 'Hello world!',
               FONT_SIZE = 30,
               FONT_COLOR = 'black',
-              SCALE_FACTOR = 10;
-        let letters = createLetterDivs(PHRASE);
-        
-        animate(letters, 0, 0);
+              SCALE_FACTOR = 10,
+              ITERATIONS = 360;
+        let letters = createLetterDivs(PHRASE),
+            sin = [],
+            cos = [];
 
-        function animate(letters, theta, count) {
+        animate(letters, ITERATIONS);
+
+        function animate(letters, theta) {
             for(let i=0,l=letters.length, c; i<l; i++){
                 c = letters[i];
+                
+                
+                c.position.x = c.startPosition.x + Math.cos(Math.degreeToRad(c.theta.x)) * c.theta.x;
+                c.position.y = c.startPosition.y + Math.sin(Math.degreeToRad(c.theta.y)) * c.theta.y;
 
-                //c.position.x = c.startPosition.x + Math.cos(theta) * SCALE_FACTOR;
-                c.position.y = c.startPosition.y + Math.sin(theta) * SCALE_FACTOR;
-                theta++;
+                c.theta.x--;
+                c.theta.y--
+                if(c.theta.x < 0) c.theta.x=0;
+                if(c.theta.y < 0) c.theta.y=0;
+
                 c.style.top = c.position.y + 'px';
                 c.style.left = c.position.x + 'px';
+               
             }
-            count++; 
-
-            if(count < 20){
+            theta--;
+            if(theta >= 0){
                 window.setTimeout(function() {
-                    animate(letters, theta, count);
-                }, 50);
+                    animate(letters, theta);
+                }, 0);
             }else{
-                count=0;
-                removeLetters(letters);
+                window.setTimeout(function(){
+                    removeLetters(letters);
+                },1000)
             }
-        }
-        
-        function degreeToRad(deg){
-            return deg*Math.PI/180;
         }
 
         function createLetterDivs(phrase){
             let phraseWidth = 0,
                 phraseHeight = 0,
                 offset = 0,
-                initPoint,
+                initPoint, 
                 letterElements;
              const LETTER_SPACING = 2;
 
@@ -68,6 +61,8 @@
                 l.style.top = -1000 + 'px';
                 l.style.left = -1000 + 'px';
                 l.style.zIndex = 1000;
+                l.scaleFactor = new Point(Math.random() * 1000, Math.random()*1000);
+                l.theta = new Point(~~(Math.random() * 360), ~~(Math.random() * 360));
                 document.body.appendChild(l);
                 l.startPosition = new Point(0,0);
                 l.position = l.startPosition.clone();
@@ -87,7 +82,8 @@
                 l.startPosition.x = initPoint.x + offset;
                 if(l.innerText.trim() === '') offset += LETTER_SPACING*3;
                 l.startPosition.y = initPoint.y;
-                l.position = l.startPosition.clone();
+                l.position.x = l.startPosition.x + Math.cos(Math.degreeToRad(l.theta.x)) * l.theta.x;
+                l.position.y = l.startPosition.y + Math.sin(Math.degreeToRad(l.theta.y)) * l.theta.y;
                 l.style.top = l.position.y + 'px';
                 l.style.left = l.position.x + 'px';
                 offset += l.offsetWidth + LETTER_SPACING;
